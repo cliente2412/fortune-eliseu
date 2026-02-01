@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortune Eliseu da Sorte — Demo</title>
+
+<style>
+:root{--gold:#ffcc00;--bg1:#1b1b2f;--bg2:#0f0f1a}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  background:radial-gradient(circle at top,var(--bg1),var(--bg2));
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center
+}
+.card{
+  width:min(92vw,380px);
+  background:#15152a;
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 25px 60px rgba(0,0,0,.5);
+  text-align:center
+}
+.badge{
+  display:inline-block;
+  background:var(--gold);
+  color:#000;
+  font-weight:800;
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:.75rem;
+  margin-bottom:10px
+}
+h1{margin:.2em 0 .4em;font-size:1.35rem}
+.notice{font-size:.8rem;opacity:.85}
+.balance{margin:10px 0;font-size:1.1rem}
+.slots{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:14px 0
+}
+.slot{
+  height:70px;
+  border-radius:14px;
+  background:#0f0f1a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:2.2rem
+}
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+  100%{transform:scale(1)}
+}
+button{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  background:linear-gradient(135deg,#ffdd55,#ff9900);
+  color:#000;
+  font-weight:900
+}
+.footer{margin-top:10px;font-size:.7rem;opacity:.7}
+#winText{
+  display:none;
+  font-weight:900;
+  color:#ffcc00;
+  margin-top:6px;
+  animation:pulse .8s infinite
+}
+#message{
+  margin-top:8px;
+  font-weight:700;
+  color:#ffcc00;
+  min-height:20px
+}
+</style>
+</head>
+
+<body>
+
+<div class="card" id="start">
+  <span class="badge">DEMO</span>
+  <h1>Fortune Eliseu da Sorte</h1>
+  <p class="notice">Jogo fictício. Sem dinheiro real.</p>
+  <button onclick="startGame()">Começar</button>
+  <div class="footer">GitHub Pages</div>
+</div>
+
+<div class="card" id="game" style="display:none">
+  <span class="badge">DEMO</span>
+  <h1>Fortune Eliseu da Sorte</h1>
+  <div class="balance">Saldo: R$ <span id="balance">100</span></div>
+
+  <div class="slots">
+    <div class="slot">🐯</div>
+    <div class="slot">🐯</div>
+    <div class="slot">🐯</div>
+  </div>
+
+  <div id="winText">VOCÊ GANHOU!</div>
+  <div id="message"></div>
+
+  <button id="spinBtn">Girar (grátis)</button>
+  <div class="footer">Giros restantes: <span id="spins">3</span></div>
+</div>
+
+<script>
+let balance = 100;
+let spins = 3;
+const WIN_SYMBOL = '💰';
+
+// 🎶 música de fundo
+const bgMusic = new Audio('casino-music.mp3');
+bgMusic.loop = true;
+bgMusic.volume = 0.25;
+
+// 🎰 roleta
+const spinSound = new Audio('spin.mp3');
+spinSound.loop = true;
+spinSound.volume = 0.6;
+
+// 😈 grito final
+const screams = [
+  new Audio('DSWeHRIILZ4.mp3'),
+  new Audio('grito2.mp3'),
+  new Audio('grito3.mp3')
+];
+screams.forEach(s => s.volume = 1.0);
+
+function startGame(){
+  document.getElementById('start').style.display = 'none';
+  document.getElementById('game').style.display = 'block';
+  bgMusic.play();
+}
+
+document.getElementById('spinBtn').onclick = spin;
+
+function vibrate(){
+  if(navigator.vibrate){
+    navigator.vibrate([200,100,200,100,300]);
+  }
+}
+
+function playFinalScream(){
+  const s = screams[Math.floor(Math.random()*screams.length)];
+  s.currentTime = 0;
+  s.play();
+}
+
+function spin(){
+  if(spins <= 0) return;
+  spins--;
+  document.getElementById('spins').textContent = spins;
+
+  const slots = document.querySelectorAll('.slot');
+  const emojis = ['🍒','⭐','🔔','💎','🍀','7️⃣','🍉','🍋'];
+  let count = 0;
+
+  spinSound.currentTime = 0;
+  spinSound.play();
+
+  const interval = setInterval(()=>{
+    slots.forEach(s=>{
+      s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    });
+    count++;
+
+    if(count > 15){
+      clearInterval(interval);
+      spinSound.pause();
+
+      slots.forEach(s=>s.textContent = WIN_SYMBOL);
+      balance += 50;
+      document.getElementById('balance').textContent = balance;
+      document.getElementById('winText').style.display = 'block';
+
+      document.getElementById('message').textContent =
+        spins === 0 ? '🎉 Você ganhou R$ 250!' : `🎁 Faltam ${spins} giros`;
+
+      vibrate();
+
+      if(spins === 0){
+        playFinalScream();
+      }
+    }
+  },100);
+}
+</script>
+
+</body>
+</html>
