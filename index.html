@@ -90,7 +90,7 @@ button{
 <div class="card" id="start">
   <span class="badge">DEMO</span>
   <h1>Fortune Eliseu da Sorte</h1>
-  <p class="notice">Jogo fictício. Sem dinheiro real.</p>
+  <p class="notice">Clique para liberar o som</p>
   <button onclick="startGame()">Começar</button>
   <div class="footer">GitHub Pages</div>
 </div>
@@ -110,7 +110,7 @@ button{
   <div id="message"></div>
 
   <button id="spinBtn">Girar (grátis)</button>
-  <div class="footer">Giros restantes: <span id="spins">3</span></div>
+  <div class="footer">Giros: <span id="spins">3</span></div>
 </div>
 
 <script>
@@ -118,28 +118,31 @@ let balance = 100;
 let spins = 3;
 const WIN_SYMBOL = '💰';
 
-// 🎶 música de fundo
-const bgMusic = new Audio('casino-music.mp3');
-bgMusic.loop = true;
-bgMusic.volume = 0.25;
-
-// 🎰 roleta
-const spinSound = new Audio('spin.mp3');
-spinSound.loop = true;
-spinSound.volume = 0.6;
-
-// 😈 grito final
-const screams = [
-  new Audio('DSWeHRIILZ4.mp3'),
-  new Audio('grito2.mp3'),
-  new Audio('grito3.mp3')
-];
-screams.forEach(s => s.volume = 1.0);
+// áudios (criados depois do clique)
+let bgMusic, spinSound, screams;
 
 function startGame(){
   document.getElementById('start').style.display = 'none';
   document.getElementById('game').style.display = 'block';
+
+  // 🎶 música fundo
+  bgMusic = new Audio('casino-music.mp3');
+  bgMusic.loop = true;
+  bgMusic.volume = 0.25;
   bgMusic.play();
+
+  // 🎰 roleta
+  spinSound = new Audio('spin.mp3');
+  spinSound.loop = true;
+  spinSound.volume = 0.6;
+
+  // 😈 gritos
+  screams = [
+    new Audio('DSWeHRIILZ4.mp3'),
+    new Audio('grito2.mp3'),
+    new Audio('grito3.mp3')
+  ];
+  screams.forEach(s => s.volume = 1.0);
 }
 
 document.getElementById('spinBtn').onclick = spin;
