@@ -32,6 +32,7 @@ button{
   font-weight:900; background:linear-gradient(135deg,#ffe066,#ff9900);
   color:#000; margin-top:10px;
 }
+button:disabled{opacity:.5}
 #win{ color:#ffcc00; font-weight:900; margin-top:8px; display:none; }
 .hidden{display:none}
 .small{font-size:11px; opacity:.6}
@@ -54,6 +55,7 @@ button{
   <h2>Eliseu Fortune Tiger</h2>
 
   <p>💰 Coins: <span id="coins">100</span></p>
+  <p class="small">🎯 Giros restantes: <span id="spins">3</span></p>
 
   <div class="slots">
     <div class="slot">🐯</div>
@@ -63,24 +65,28 @@ button{
 
   <div id="win"></div>
 
-  <button onclick="spin()">Girar</button>
+  <button id="spinBtn" onclick="spin()">Girar</button>
   <button onclick="openWithdraw()">Sacar</button>
 
-  <p class="small">* Jogo Fortune. Ja Resgate suas Recompensas.</p>
+  <p class="small">* Jogo Fortune. Já resgate suas recompensas.</p>
 </div>
 
-<!-- WITHDRAW (FAKE) -->
+<!-- WITHDRAW -->
 <div class="card hidden" id="withdraw">
   <span class="badge">Saldo</span>
   <h2>Saque em análise</h2>
   <p>Valor solicitado:</p>
   <h3>💰 <span id="withdrawCoins"></span> coins</h3>
-  <p class="small">Saque o dinheiro, Depôs Da Análise, Antes Faça Um Pix Para Sacar.</p>
+  <p class="small">Ambiente demonstrativo.</p>
   <button onclick="backGame()">Voltar</button>
 </div>
 
 <script>
 let coins = 100;
+let spins = 3;
+
+// ganhos controlados → 100 + (40 + 50 + 60) = 250
+const ganhosPorGiro = [40, 50, 60];
 
 // =======================
 // 🔊 ÁUDIOS (SEU CÓDIGO)
@@ -91,18 +97,15 @@ function startGame(){
   document.getElementById('start').classList.add('hidden');
   document.getElementById('game').classList.remove('hidden');
 
-  // 🎶 música fundo
   bgMusic = new Audio('casino-music.mp3');
   bgMusic.loop = true;
   bgMusic.volume = 0.25;
   bgMusic.play();
 
-  // 🎰 roleta
   spinSound = new Audio('Slot Machine - Sound Effect [pHhWs74Ljek].mp3');
   spinSound.loop = true;
   spinSound.volume = 0.6;
 
-  // 😈 gritos
   screams = [
     new Audio('DSWeHRIILZ4.mp3'),
     new Audio('DSWeHRIILZ4.mp3'),
@@ -118,19 +121,23 @@ function playScream(){
 }
 
 // =======================
-// 🎰 GIRO (CORRIGIDO)
+// 🎰 GIRO COM LIMITE
 // =======================
 function spin(){
+  if(spins <= 0) return;
+
   const slots = document.querySelectorAll('.slot');
   const emojis = ['🐯','🍒','⭐','💎','🍀','7️⃣','🍉','🔔'];
-  const ganho = Math.floor(Math.random() * (350 - 120 + 1)) + 120;
+  const ganho = ganhosPorGiro[3 - spins];
+
+  spins--;
+  document.getElementById('spins').textContent = spins;
 
   spinSound.currentTime = 0;
   spinSound.play();
 
   let count = 0;
   const anim = setInterval(()=>{
-    // 🔄 FIGURINHAS GIRANDO
     slots.forEach(s=>{
       s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
     });
@@ -140,15 +147,19 @@ function spin(){
       clearInterval(anim);
       spinSound.pause();
 
-      // 🐯 RESULTADO FINAL (SEMPRE)
       slots.forEach(s => s.textContent = '🐯');
 
       coins += ganho;
       document.getElementById('coins').textContent = coins;
       document.getElementById('win').style.display = 'block';
-      document.getElementById('win').textContent = `VOCÊ GANHOU +${ganho} COINS`;
+      document.getElementById('win').textContent =
+        `VOCÊ GANHOU +${ganho} COINS`;
 
       playScream();
+
+      if(spins === 0){
+        document.getElementById('spinBtn').disabled = true;
+      }
     }
   },100);
 }
